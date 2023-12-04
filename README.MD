@@ -7,7 +7,7 @@ activa entorno virtual: source nombre_env/bin/activate
 pip install fastapi uvicorn
 
 
-ERROR:    [Errno 98] error while attempting to bind on address ('127.0.0.1', 8000): address already in use
+ERROR:  [Errno 98] error while attempting to bind on address ('127.0.0.1', 8000): address already in use
 
 solucion:
 
