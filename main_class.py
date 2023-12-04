@@ -14,6 +14,13 @@ ventas = [
 ]
 
 
+class Sales(BaseModel):  # creamos un modelo
+    id: Optional[int]
+    fecha: str
+    tienda: str
+    importe: float
+
+
 # crear punto de entrada o endpoint
 # ejecutar con uvicorn main:app --reload
 # El reload es para si hacemos cambios los podamos ver sobre la marcha sin tener que cerrar y volver a ejecutar, simplemente refrescamos la pagina
@@ -65,19 +72,14 @@ def dame_ventas_por_tienda(tienda: str, id: int):
 
 # post
 
-# se importa clase body
-# cuando se ejecute deberemos de asignarle valores en el webserver manualmente
-
 
 @app.post("/ventas", tags=["Ventas"])
-def crea_ventas(
-    id: int = Body(), fecha: str = Body(), tienda: str = Body(), importe: float = Body()
-):
+def crea_ventas(venta: Sales):
     for sale in ventas:
-        if sale["id"] == id:
-            return f"el elemento con id {id} ya existe"
+        if sale.id == venta.id:
+            return f"el elemento con id {venta.id} ya existe"
 
-    ventas.append({"id": id, "fecha": fecha, "tienda": tienda, "importe": importe})
+    ventas.append(venta)
 
     return ventas
 
@@ -87,14 +89,12 @@ def crea_ventas(
 
 
 @app.put("/ventas/{id}", tags=["Ventas"])
-def actualiza_ventas(
-    id: int, fecha: str = Body(), tienda: str = Body(), importe: float = Body()
-):
+def actualiza_ventas(id: int, venta: Sales):
     for elem in ventas:
-        if elem["id"] == id:
-            elem["fecha"] = fecha
-            elem["tienda"] = tienda
-            elem["importe"] = importe
+        if elem.id == id:
+            elem.fecha = venta.fecha
+            elem.tienda = venta.tienda
+            elem.importe = venta.importe
     return ventas
 
 
@@ -104,6 +104,9 @@ def actualiza_ventas(
 @app.delete("/ventas{id}", tags=["Ventas"])
 def borra_ventas(id: int):
     for elem in ventas:
-        if elem["id"] == id:
+        if elem.id == id:
             ventas.remove(elem)
     return ventas
+
+
+# models
