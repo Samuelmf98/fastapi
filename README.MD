@@ -14,3 +14,9 @@ solucion:
 lsof -i :8000
 kill -9 PID
 
+Respuestas informativas (100–199),
+Respuestas satisfactorias (200–299),
+Redirecciones (300–399),
+Errores de los clientes (400–499),
+y errores de los servidores (500–599).
+
