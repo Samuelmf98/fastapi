@@ -1,9 +1,10 @@
-from fastapi import FastAPI, Body, Path, Query
+from fastapi import FastAPI, Body, Path, Query, Request, HTTPException, Depends
+from fastapi.security  import HTTPBearer
 #Query es como Path pero para longitud de str
 from fastapi.responses import HTMLResponse,JSONResponse
 from pydantic import BaseModel, Field
 from typing import Optional, List
-from jwt_config import dame_token
+from jwt_config import dame_token, validar_token
 
 #No veo cambios en la respuesta de la API al añadir List
 
@@ -29,6 +30,14 @@ class Sales(BaseModel):  # creamos un modelo
     #tienda: str
     importe: float
     
+class Portador(HTTPBearer):
+    async def __call__(self,request:Request):
+        autorizacion=await super().__call__(request)
+        dato= validar_token(autorizacion.credentials)
+
+        if dato['email'] != 'samuel.mf1998@gmail.com':
+            raise HTTPException(status_code=403,detail='No autorizado')
+    
 
 
 # crear punto de entrada o endpoint
@@ -52,7 +61,7 @@ def dame_ventas()->List[Sales]: #No veo cambios el añadir List
 # direccion/ventas/numero_personalizado
 # Si el numero existe en el id de ventas me devuelve el diccionario entero,
 # sino me devuelve una lista vacia
-@app.get("/ventas/{id}", tags=["Ventas"],response_model=List[Sales],status_code=200)
+@app.get("/ventas/{id}", tags=["Ventas"],response_model=List[Sales],status_code=200,dependencies=[Depends(Portador())]) #el depends es para proteger rutas y accesos (autenticaciones)
 def dame_ventas(id: int=Path(ge=1,le=10)) -> Sales: #el ge y el le es para poner min y max permitidos
     for elem in ventas:
         if elem['id'] == id:
@@ -134,5 +143,7 @@ def login(usuario:Usuario):
     if usuario.email == 'samuel.mf1998@gmail.com' and usuario.clave == '1234':
         token:str=dame_token(usuario.dict())
         return JSONResponse(status_code=200,content=token)
-    message='Error de autenticacion'
-    return JSONResponse(content=message,status_code=401)
+    return JSONResponse(content={'message':'Error de autenticacion'},status_code=401)
+
+
+
